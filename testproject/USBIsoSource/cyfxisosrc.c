@@ -428,18 +428,11 @@ CyBool_t CyFxIsoSrcApplnUSBSetupCB(	uint32_t setupdat0, /* SETUP Data 0 */
 			sendback[2] = dmaevent;
 			CyU3PUsbSendEP0Data(12, (uint8_t*) sendback);  //Sends back "hello"
 			if (KeepDataAlive == 0) {
+				CyFxIsoSrcApplnStop();
 				CyFxIsoSrcApplnStart();
 				CyU3PGpifSMStart(START, ALPHA_START);
 			}
 			KeepDataAlive = 1200 * 2;
-		} else if (bRequest == 0xbb) {
-				uint32_t sendback[10];
-				sendback[0] = 0xaabbccdd;
-				sendback[1] = DataOverrunErrors;
-				sendback[2] = dmaevent;
-				CyU3PUsbSendEP0Data(12, (uint8_t*) sendback);  //Sends back "hello"
-				CyFxIsoSrcApplnStop();
-				KeepDataAlive = 0;
 		} else if( bRequest == 0xcc ) {
 			uint8_t buffer[512];
 			uint16_t readCount = 0;
@@ -1236,7 +1229,7 @@ int main(void) {
 
 	///Confusing but seems to set it up so the SYS_CLK can be 400 MHz. from https://community.cypress.com/thread/21688
 	CyU3PSysClockConfig_t clkCfg = {
-			CyTrue, //If true, clock is 403.2 MHz, False, 384 MHz.
+	CyTrue, //If true, clock is 403.2 MHz, False, 384 MHz.
 			2, 2, 2,
 			CyFalse, CY_U3P_SYS_CLK };
 	status = CyU3PDeviceInit(&clkCfg);
